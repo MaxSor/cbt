@@ -3,6 +3,7 @@ docker build -t selenium . | docker run selenium
 
 # Docker run with interactive console and auto delete container after stop
 docker run --rm -it --restart=always selenium
+docker run --rm -it selenium
 
 --Run additional bash
 docker exec -it <mycontainer> bash

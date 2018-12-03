@@ -48,10 +48,7 @@ def checktickets(urllist, bot):
         noticketinurls = 0   
         noticket = 0
         msg = ''
-        try:
-                noticket, msg = checkticketurl(url)
-        except Exception as e:
-                print(str(e))
+        noticket, msg = checkticketurl(url)
         print("Check complete, notickets = ", noticket)
         if noticket > 0 : 
                 noticketinurls +=noticket
@@ -60,7 +57,10 @@ def checktickets(urllist, bot):
 
 def checkticketurl(url):
         print("Checking", url)
-        browser.get(url)
+        try:
+                browser.get(url)
+        except Exception as e:
+                print(str(e))        
         try:
                 text = browser.find_element_by_tag_name('h2').text
         except Exception as e:
