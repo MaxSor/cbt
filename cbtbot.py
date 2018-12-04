@@ -60,7 +60,8 @@ def checkticketurl(url):
         try:
                 browser.get(url)
         except Exception as e:
-                print(str(e))        
+                print(str(e))
+                browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
         try:
                 text = browser.find_element_by_tag_name('h2').text
         except Exception as e:
