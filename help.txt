@@ -9,8 +9,9 @@ docker run --rm -it selenium
 docker exec -it <mycontainer> bash
 
 --Run and mount windir
-docker run --rm -v C:/Users/msorokin/Documents/Prog/carbon-ticket:/carbon selenium 
-docker run --rm -v C:/prog:/prog selenium 
+docker run --rm -v C:/Users/msorokin/Documents/Prog/carbon-ticket:/carbon selenium
+docker run --rm -v F:/Prog/python/cbt:/carbon selenium 
+
 
 --Delete containers
 docker rm $(docker ps -a -f status=exited -q)

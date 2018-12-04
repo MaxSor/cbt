@@ -42,34 +42,35 @@ def initbrowser():
         display = Display(visible=0, size=(800, 600))
         display.start()
         browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
+        return browser, display
 
-def disablebrowser():
+def disablebrowser(browser, display):
         # Disable scrapper
         browser.quit()
         display.stop()
 
-def checktickets(urllist, bot):
+def checktickets(urllist, bot, browser, display):
     """Chek tickets by scrapping urls"""
     print("Start check")
     for url in urllist:
         noticketinurls = 0   
         noticket = 0
         msg = ''
-        noticket, msg = checkticketurl(url)
+        noticket, msg = checkticketurl(url, browser, display)
         print("Check complete, notickets = ", noticket)
         if noticket > 0 : 
                 noticketinurls +=noticket
                 notify(bot, msg)
     return noticketinurls
 
-def checkticketurl(url):
+def checkticketurl(url, browser, display):
         print("Checking", url)
         try:
                 browser.get(url)
         except Exception as e:
                print(str(e))
-               disablebrowser()
-               initbrowser()
+               disablebrowser(browser, display)
+               browser, display = initbrowser()
         try:
                 text = browser.find_element_by_tag_name('h2').text
         except Exception as e:
@@ -99,12 +100,12 @@ def main():
    
     # Start the Bot
     updater.start_polling()
-    initbrowser()
+    browser, display = initbrowser()
 
     while True:
         noticketinurls = 0
         try:
-                noticketinurls = checktickets(urls,bot)
+                noticketinurls = checktickets(urls,bot, browser, display)
         except Exception as e:
                 print(str(e))
                 time.sleep(600)
@@ -120,7 +121,7 @@ def main():
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
-    disablebrowser()
+    disablebrowser((browser, display)
     print("End")
    
 
