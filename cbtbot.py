@@ -15,10 +15,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-# Enable scrapping
-display = Display(visible=0, size=(800, 600))
-display.start()
-browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
 
 #Define variables
 
@@ -41,6 +37,17 @@ credentials_file.close
 # print(bottoken)
 # print(chat_id)
 
+def initbrowser():
+        # Enable scrapping
+        display = Display(visible=0, size=(800, 600))
+        display.start()
+        browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
+
+def disablebrowser():
+        # Disable scrapper
+        browser.quit()
+        display.stop()
+
 def checktickets(urllist, bot):
     """Chek tickets by scrapping urls"""
     print("Start check")
@@ -60,8 +67,9 @@ def checkticketurl(url):
         try:
                 browser.get(url)
         except Exception as e:
-                print(str(e))
-                browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
+               print(str(e))
+               disablebrowser()
+               initbrowser()
         try:
                 text = browser.find_element_by_tag_name('h2').text
         except Exception as e:
@@ -91,6 +99,7 @@ def main():
    
     # Start the Bot
     updater.start_polling()
+    initbrowser()
 
     while True:
         noticketinurls = 0
@@ -111,11 +120,9 @@ def main():
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
+    disablebrowser()
     print("End")
    
-    # Disable scrapper
-    browser.quit()
-    display.stop()
 
 if __name__ == '__main__':
     main()
