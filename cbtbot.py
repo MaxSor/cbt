@@ -121,7 +121,7 @@ def main():
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
-    disablebrowser((browser, display)
+    disablebrowser(browser, display)
     print("End")
    
 
