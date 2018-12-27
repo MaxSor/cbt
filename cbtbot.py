@@ -69,8 +69,6 @@ def checkticketurl(url, browser, display):
                 browser.get(url)
         except Exception as e:
                print(str(e))
-               disablebrowser(browser, display)
-               browser, display = initbrowser()
         try:
                 text = browser.find_element_by_tag_name('h2').text
         except Exception as e:
@@ -100,10 +98,11 @@ def main():
    
     # Start the Bot
     updater.start_polling()
-    browser, display = initbrowser()
+    
 
     while True:
         noticketinurls = 0
+        browser, display = initbrowser()
         try:
                 noticketinurls = checktickets(urls,bot, browser, display)
         except Exception as e:
@@ -116,12 +115,14 @@ def main():
                 elif (noticketinurls == 0) : 
                         print("Sleep 60 sec")
                         time.sleep(60)
+        finally:
+                disablebrowser(browser, display)
         
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
     # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
-    disablebrowser(browser, display)
+    
     print("End")
    
 
