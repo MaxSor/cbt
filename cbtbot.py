@@ -64,11 +64,16 @@ def checktickets(urllist, bot, browser, display):
     return noticketinurls
 
 def checkticketurl(url, browser, display):
+        noticket = 0
+        msg = ''
+        
         print("Checking", url)
         try:
                 browser.get(url)
         except Exception as e:
                print(str(e))
+               return noticket, msg
+
         try:
                 text = browser.find_element_by_tag_name('h2').text
         except Exception as e:
@@ -83,6 +88,7 @@ def checkticketurl(url, browser, display):
                 elif (text == "Билетов нет") : 
                         msg = ''
                         noticket = 0
+        
         return noticket, msg
 
 

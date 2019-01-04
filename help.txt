@@ -18,28 +18,3 @@ docker rm $(docker ps -a -f status=exited -q)
 
 --Delete images
 docker rmi $(docker images -q -f dangling=true)
-
-FROM alpine:latest
-ADD cbt.py /
-RUN apk add --update py-pip
-RUN pip install --upgrade pip
-RUN pip install lxml -v
-RUN pip install requests-html
-RUN apt-get install libpangocairo-1.0-0
-RUN apt-get install libx11-dev
-RUN apt-get install libxcomposite1
-RUN apt-get install libxcursor1
-RUN apt-get install libxdamage1
-RUN apt-get install libxi6
-RUN apt-get install libxtst6:i386
-RUN apt-get install libnss3
-RUN apt-get install libcups2
-RUN apt-get install libxss1
-RUN apt-get install libxrandr2
-RUN apt-get install libgconf2-4
-RUN apt-get install libasound2
-RUN apt-get install libatk1.0-0
-RUN apt-get install libgtk-3-0
-RUN python cbt.py
-CMD [ "python", "./cbt.py" ]
-#CMD [ "python", "./cbt.py" ]
