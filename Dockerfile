@@ -55,5 +55,5 @@ WORKDIR /$APP_HOME
 COPY cbtbot.py $APP_HOME/
 COPY credentials $APP_HOME/
 
-#CMD tail -f /dev/null
-CMD python3 cbtbot.py
+CMD tail -f /dev/null
+#CMD python3 cbtbot.py
