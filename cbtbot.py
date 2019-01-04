@@ -34,6 +34,8 @@ urls.append(credentials_file.readline().strip())
 urls.append(credentials_file.readline().strip())
 credentials_file.close
 
+urlresults = dict(zip(urls,[0,0,0]))
+
 # print(bottoken)
 # print(chat_id)
 
@@ -51,16 +53,24 @@ def disablebrowser(browser, display):
 
 def checktickets(urllist, bot, browser, display):
     """Chek tickets by scrapping urls"""
+    print (urlresults)
     print("Start check")
     for url in urllist:
         noticketinurls = 0   
         noticket = 0
         msg = ''
-        noticket, msg = checkticketurl(url, browser, display)
+        noticket, msg = checkticketurl(url, browser, display)     
         print("Check complete, notickets = ", noticket)
-        if noticket > 0 : 
-                noticketinurls +=noticket
-                notify(bot, msg)
+        if noticket == 0 : 
+                urlresults[url] = 0
+        else:
+                urlresults[url] += noticket
+                #Notify every two positive checks in a row
+                if urlresults[url] % 2  == 0 :
+                        noticketinurls +=noticket
+                        notify(bot, msg)
+                else:
+                        print("notify skipped")
     return noticketinurls
 
 def checkticketurl(url, browser, display):
