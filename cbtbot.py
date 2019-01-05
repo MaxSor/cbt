@@ -118,8 +118,8 @@ def main():
 
     while True:
         noticketinurls = 0
-        browser, display = initbrowser()
         try:
+                browser, display = initbrowser()
                 noticketinurls = checktickets(urls,bot, browser, display)
         except Exception as e:
                 print(str(e))
