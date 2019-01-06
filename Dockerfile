@@ -53,7 +53,7 @@ ENV LC_ALL C.UTF-8
 WORKDIR /$APP_HOME
 
 # COPY . $APP_HOME/
-COPY cbtbot.py $APP_HOME/
+COPY cbtbot2.py $APP_HOME/
 COPY credentials $APP_HOME/
 
 # CMD tail -f /dev/null
