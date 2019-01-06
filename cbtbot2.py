@@ -90,8 +90,13 @@ def checktickets(q):
     waitsec = 120
     rowcount = 3
     urlresult = dict(zip(urllist,[0,0,0]))
+<<<<<<< HEAD
     
     logger.info("Start checking urls")
+=======
+
+    logger.info("Start checking urls)
+>>>>>>> d9bde4fef9020d7cc27af75cc79c2e6d0cb95ffb
 
     while True:
         browser, display = initbrowser()

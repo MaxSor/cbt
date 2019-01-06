@@ -39,6 +39,7 @@ RUN wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x
 
 RUN pip3 install --upgrade pip
 
+#RUN pip3 install queue
 RUN pip3 install selenium
 RUN pip3 install pyvirtualdisplay
 RUN pip3 install python-telegram-bot --upgrade
@@ -52,8 +53,8 @@ ENV LC_ALL C.UTF-8
 WORKDIR /$APP_HOME
 
 # COPY . $APP_HOME/
-COPY cbtbot.py $APP_HOME/
+COPY cbtbot2.py $APP_HOME/
 COPY credentials $APP_HOME/
 
-#CMD tail -f /dev/null
-CMD python3 cbtbot.py
+# CMD tail -f /dev/null
+CMD python3 cbtbot2.py
