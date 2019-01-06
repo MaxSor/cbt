@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from pyvirtualdisplay import Display
 from selenium import webdriver
 import time
@@ -41,6 +42,8 @@ def initcredentials ():
         logger.info("Initializing credentials finished")
     return urllist, bottoken, chat_id
 
+urllist, bottoken, chat_id = initcredentials()
+
 def initbrowser():
         """ Enable scrapping """
         display = Display(visible=0, size=(800, 600))
@@ -66,7 +69,7 @@ def checkticketurl(url, browser, display):
                return tickets, msg
 
         try:
-                text = browser.find_element_by_tag_name('h2').text
+                text = browser.find_element_by_tag_name('h1').text
         except Exception as e:
                 msg = str(e)[:-1] + " " + url
                 logger.warn(msg)
@@ -81,12 +84,14 @@ def checkticketurl(url, browser, display):
                         tickets = 0
         return tickets, msg
 
-def checktickets(urllist, q):
+def checktickets(q):
     """Chek tickets by scrapping multiply urls"""
     
     waitsec = 10
     rowcount = 2
     urlresult = dict(zip(urllist,[0,0,0]))
+
+    logger.info("Start checking urls)
 
     while True:
         browser, display = initbrowser()
@@ -105,23 +110,41 @@ def checktickets(urllist, q):
         time.sleep(waitsec)
         q.join()
 
-def notifier(q):
-        while(True):
-                msg = q.get()
-                logger.warn("---Notify: %s ---", msg)
-                q.task_done()
+def notify(bot, text):
+    """Notify me"""
+    bot.send_message(chat_id=chat_id, text=text)
 
 
 def main():
+
     logger.info('Main started')
-    q = queue.Queue(maxsize = 0)    
-    urllist, bottoken, chat_id = initcredentials()
-    t = threading.Thread(name = "ProducerThread", target=checktickets, args=(urllist, q,))
+    
+    def notifier(q):
+        while(True):
+            msg = q.get()
+            logger.warn("---Notify: %s ---", msg)
+            notify(bot, msg)
+            q.task_done() 
+
+    # Start the Bot
+    updater = Updater(token=bottoken)
+    bot = updater.bot
+    updater.start_polling()
+
+    # Start scrapling and notifiyng threads
+    q = queue.Queue(maxsize = 0)   
+    t = threading.Thread(name = "ProducerThread", target=checktickets, args=(q,))
     t.start()
     t = threading.Thread(name = "ConsumerThread", target=notifier, args=(q,))
     t.start()
     q.join
-    logger.info('Main executed')
+    
+    logger.info('Threads started')
+
+    # Run the bot until you press Ctrl-C or the process receives SIGINT,
+    # SIGTERM or SIGABRT. This should be used most of the time, since
+    # start_polling() is non-blocking and will stop the bot gracefully.
+    updater.idle()
 
 if __name__ == '__main__':
     main()
