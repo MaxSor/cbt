@@ -69,7 +69,7 @@ def checkticketurl(url, browser, display):
                return tickets, msg
 
         try:
-                text = browser.find_element_by_tag_name('h1').text
+                text = browser.find_element_by_tag_name('h2').text
         except Exception as e:
                 msg = str(e)[:-1] + " " + url
                 logger.warn(msg)
@@ -87,8 +87,8 @@ def checkticketurl(url, browser, display):
 def checktickets(q):
     """Chek tickets by scrapping multiply urls"""
     
-    waitsec = 10
-    rowcount = 2
+    waitsec = 120
+    rowcount = 3
     urlresult = dict(zip(urllist,[0,0,0]))
 
     logger.info("Start checking urls)
