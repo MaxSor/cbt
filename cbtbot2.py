@@ -68,6 +68,7 @@ def disablebrowser(browser, display):
         """ Disable scrapper """
         browser.quit()
         display.stop()
+        logger.info("Browser stopped")
     
 def checkticketurl(url, browser, display):
         """Chek single url for available tickets"""
@@ -102,7 +103,7 @@ def checktickets(q):
     """Chek tickets by scrapping multiply urls"""
     
     waitsec = 120
-    rowcount = 3
+    rowcount = 1
     urlresult = dict(zip(urllist,[0,0,0]))
     
     logger.info("Start checking urls")
