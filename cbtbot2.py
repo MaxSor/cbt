@@ -4,6 +4,9 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from pyvirtualdisplay import Display
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
 import queue
 import threading
@@ -46,9 +49,19 @@ urllist, bottoken, chat_id = initcredentials()
 
 def initbrowser():
         """ Enable scrapping """
+        
+        browser_type = 'ff'
+        
         display = Display(visible=0, size=(800, 600))
         display.start()
-        browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
+
+        if browser_type == 'ff':
+            browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
+        else:
+            options = webdriver.ChromeOptions()
+            options.add_argument("--no-sandbox") # Bypass OS security model
+            browser = webdriver.Chrome(options = options, executable_path="/usr/bin/chromedriver")
+       
         return browser, display
 
 def disablebrowser(browser, display):
@@ -69,7 +82,8 @@ def checkticketurl(url, browser, display):
                return tickets, msg
 
         try:
-                text = browser.find_element_by_tag_name('h2').text
+                # text = browser.find_element_by_tag_name('h2').text
+                 text = WebDriverWait(browser, 1).until(EC.presence_of_element_located((By.CSS_SELECTOR, "h2")))
         except Exception as e:
                 msg = str(e)[:-1] + " " + url
                 logger.warn(msg)
@@ -94,7 +108,11 @@ def checktickets(q):
     logger.info("Start checking urls")
 
     while True:
-        browser, display = initbrowser()
+        try:
+            browser, display = initbrowser()
+        except:
+            logger.error("Error while browser init", exc_info = 1)
+            continue
 
         for url in urllist:
             tickets, msg = checkticketurl(url, browser, display)  
