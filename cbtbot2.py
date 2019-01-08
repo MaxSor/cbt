@@ -18,7 +18,7 @@ import logging
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.warn)
+                    level=logging.WARN)
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +166,7 @@ def parseAvito (q):
         browser, display = initbrowser()
         try:
             AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table")
-            AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item")  
+            # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item")  
         except:
             logger.error("Error while checking avito search results", exc_info = 1)
             disablebrowser(browser, display)
