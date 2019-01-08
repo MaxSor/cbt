@@ -163,8 +163,8 @@ def parseAvito (q):
     AvitoAdLinklist = collections.defaultdict(list)
     
     while True:
-        browser, display = initbrowser()
         try:
+            browser, display = initbrowser()
             AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table")
             # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item")  
         except:
