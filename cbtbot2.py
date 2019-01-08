@@ -18,13 +18,13 @@ import logging
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.WARN)
+                    level=logging.INFO)
 
 logger = logging.getLogger(__name__)
 
 def initcredentials ():
     """ Read urls, telegram bot token and chat_id from file """
-    logger.info('Initializing credentials')
+    logger.debug('Initializing credentials')
     urllist = []
     bottoken = ''
     chat_id = ''
@@ -43,7 +43,7 @@ def initcredentials ():
         urllist.append(credentials_file.readline().strip())
         urllist.append(credentials_file.readline().strip())
         credentials_file.close
-        logger.info("Initializing credentials finished")
+        logger.debug("Initializing credentials finished")
     return urllist, bottoken, chat_id
 
 urllist, bottoken, chat_id = initcredentials()
@@ -58,12 +58,12 @@ def initbrowser():
 
         if browser_type == 'ff':
             browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
-            logger.info("Firefox browser inited")
+            logger.debug("Firefox browser inited")
         else:
             options = webdriver.ChromeOptions()
             options.add_argument("--no-sandbox") # Bypass OS security model
             browser = webdriver.Chrome(options = options, executable_path="/usr/bin/chromedriver")
-            logger.info("Chrome browser inited")
+            logger.debug("Chrome browser inited")
        
         return browser, display
 
@@ -71,7 +71,7 @@ def disablebrowser(browser, display):
         """ Disable scrapper """
         browser.quit()
         display.stop()
-        logger.info("Browser stopped")
+        logger.debug("Browser stopped")
     
 def checkticketurl(url, browser, display):
         """Chek single url for available tickets"""
@@ -108,7 +108,7 @@ def checktickets(q):
     rowcount = 1
     urlresult = dict(zip(urllist,[0,0,0]))
     
-    logger.info("Start checking urls")
+    logger.info("Start checking ticket urls")
 
     while True:
         try:
@@ -141,10 +141,10 @@ def parseAvito (q):
     def parseAvitoSearch (url, css_selector):
         """Parse search results"""
         result = collections.defaultdict(list)
+        logger.info("Checking %s", url)
         try:
             browser.get(url) #"https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms"
             items = browser.find_elements(By.CSS_SELECTOR, css_selector) #".item.item_table"
-            logger.info("Browser got %s", url)
         except:
             logger.error("Error while parsing avito search results", exc_info = 1)
             return
