@@ -22,6 +22,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
+waitsec = 120 #Wait before next attempt
+
 def initcredentials ():
     """ Read urls, telegram bot token and chat_id from file """
     logger.debug('Initializing credentials')
@@ -104,7 +106,6 @@ def checkticketurl(url, browser, display):
 def checktickets(q):
     """Chek tickets by scrapping multiply urls"""
     
-    waitsec = 120
     rowcount = 1
     urlresult = dict(zip(urllist,[0,0,0]))
     
@@ -133,8 +134,6 @@ def checktickets(q):
 
 def parseAvito (q):
     """Monitor avito and send message to queue when search results changes"""
-
-    waitsec = 120
 
     logger.info("Avito parser started")
 
@@ -185,7 +184,6 @@ def parseAvito (q):
             q.put(msg)
         
         disablebrowser(browser, display)
-        q.join()
         time.sleep(waitsec)
 
 def notify(bot, text):
@@ -215,6 +213,8 @@ def main():
     t = threading.Thread(name = "ProducerThread - Tickets", target=checktickets, args=(q,))
     t.start()
     
+    time.sleep(waitsec/2)
+
     t = threading.Thread(name = "ProducerThread - Avito", target=parseAvito, args=(q,))
     t.start()
 
