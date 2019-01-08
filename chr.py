@@ -45,8 +45,6 @@ def main():
         
             return browser, display
 
-        browser, display = initbrowser()
-
         class AvitoAd:
             """Avito advert"""
 
@@ -69,36 +67,58 @@ def main():
             def count(cls):
                 return len(AvitoAd.link_index)
 
-        browser.get("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms")
-        logger.info('browser got')
-        
-        try:
-            #items = WebDriverWait(browser, 20).until(EC.find_elements_by_class_name((by.CLASS_NAME, "item item_table")))
-            items = browser.find_elements(By.CSS_SELECTOR, ".item.item_table")
-            # items = browser.find_elements_by_css_selector(".item.item_table")
-            #text = WebDriverWait(browser, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "h2")))
-            # logger.info(items)
-        except:
-            logger.error('located error', exc_info = 1)
+        def parseAvitoSearch (url, css_selector):
+            """Parse search results"""
+            result = collections.defaultdict(list)
+            try:
+                browser.get(url) #"https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms"
+                items = browser.find_elements(By.CSS_SELECTOR, css_selector) #".item.item_table"
+                logger.info("Browser got %s", url)
+            except:
+                logger.error("Error while parsing search results", exc_info = 1)
+                return
+            
+            try:
+                for item in items:
+                    text = item.find_element(By.CSS_SELECTOR, "h3").text
+                    link = item.find_element(By.TAG_NAME, "a").get_attribute('href')
+                    price = item.find_element(By.CSS_SELECTOR, ".price").get_attribute('content')
+                    result[link].append([text,price])
+            except:
+                logger.error("Error while collecting results", exc_info = 1)
+                return 
+
+            return result
+
+
+        while True:
+            browser, display = initbrowser()
+
+            try:
+                AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table")
+                AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item")  
+            except:
+                logger.error("Error while checking urls", exc_info = 1)
+                browser.quit()
+                display.stop()
+                continue
+
+            dif = set()
+            if len(AvitoAdLinklist) == 0:
+                # For first launch
+                AvitoAdLinklist = AvitoAdLinklist2.copy()
+            else:
+                dif = set(AvitoAdLinklist2).symmetric_difference(set(AvitoAdLinklist))
+
+            if len(dif) > 0:
+                print("dif: ", dif)
+            
             browser.quit()
             display.stop()
 
-        AvitoAdlist = list()
-        for item in items:
-            # text = item.find_elements_by_css_selector('div.item_table-wrapper > div.description.item_table-description > div.item_table-header > h3')
-            # text = item.find_elements_by_css_selector('h3').text
-            text = item.find_element(By.CSS_SELECTOR, "h3").text
-            link = item.find_element(By.TAG_NAME, "a").get_attribute('href')
-            price = item.find_element(By.CSS_SELECTOR, ".price").get_attribute('content')
-            AvitoAdlist.append(AvitoAd(text, link, price))
-            # print(text, link, price)
 
-        print("List", AvitoAdlist)    
-        print("Count ads", AvitoAd.count())
-        print("1st ad", AvitoAdlist[0])
-
-        # #toAppend > div > div.buy-tickets-page-box.event-page-box > div > div > h2
-        # //*[@id="toAppend"]/div/div[2]/div/div/h2
+            
+        
 
         # text = browser.find_element_by_tag_name('h2').text
         # element = browser.find_element(By.CSS_SELECTOR, "h2")
