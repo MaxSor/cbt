@@ -86,7 +86,6 @@ def checkticketurl(url, browser, display):
                return tickets, msg
 
         try:
-                # text = browser.find_element_by_tag_name('h2').text
                 text = WebDriverWait(browser, 10).until(lambda x: x.find_element_by_tag_name('h2')).text
         except Exception as e:
                 msg = str(e)[:-1] + " " + url
