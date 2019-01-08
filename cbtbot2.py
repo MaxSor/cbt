@@ -5,10 +5,13 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+
+import os
 import time
 import queue
 import threading
-import os
+import collections
 
 #from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
@@ -128,6 +131,55 @@ def checktickets(q):
         logger.info("Wait after next attempt %s sec", waitsec)
         time.sleep(waitsec)
         q.join()
+
+def parseAvito (q):
+    def parseAvitoSearch (url, css_selector):
+        """Parse search results"""
+        result = collections.defaultdict(list)
+        try:
+            browser.get(url) #"https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms"
+            items = browser.find_elements(By.CSS_SELECTOR, css_selector) #".item.item_table"
+            logger.info("Browser got %s", url)
+        except:
+            logger.error("Error while parsing search results", exc_info = 1)
+            return
+        
+        try:
+            for item in items:
+                text = item.find_element(By.CSS_SELECTOR, "h3").text
+                link = item.find_element(By.TAG_NAME, "a").get_attribute('href')
+                price = item.find_element(By.CSS_SELECTOR, ".price").get_attribute('content')
+                result[link].append([text,price])
+        except:
+            logger.error("Error while collecting results", exc_info = 1)
+            return 
+        return result
+
+    AvitoAdLinklist = collections.defaultdict(list)
+    
+    while True:
+        browser, display = initbrowser()
+        try:
+            AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table")
+            # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item")  
+        except:
+            logger.error("Error while checking urls", exc_info = 1)
+            disablebrowser(browser, display)
+            continue
+
+        dif = set()
+        if len(AvitoAdLinklist) == 0:
+            # For first launch
+            AvitoAdLinklist = AvitoAdLinklist2.copy()
+        else:
+            dif = set(AvitoAdLinklist2).symmetric_difference(set(AvitoAdLinklist))
+
+        if len(dif) > 0:
+            msg = "Avito results changed" + dif
+            logger.warn(msg)
+            q.put(msg)
+        
+        disablebrowser(browser, display)
 
 def notify(bot, text):
     """Notify me"""
