@@ -133,6 +133,10 @@ def checktickets(q):
         q.join()
 
 def parseAvito (q):
+    """Monitor avito and send message to queue when search results changes"""
+
+    logger.info("Avito parser started")
+
     def parseAvitoSearch (url, css_selector):
         """Parse search results"""
         result = collections.defaultdict(list)
@@ -141,7 +145,7 @@ def parseAvito (q):
             items = browser.find_elements(By.CSS_SELECTOR, css_selector) #".item.item_table"
             logger.info("Browser got %s", url)
         except:
-            logger.error("Error while parsing search results", exc_info = 1)
+            logger.error("Error while parsing avito search results", exc_info = 1)
             return
         
         try:
@@ -151,7 +155,7 @@ def parseAvito (q):
                 price = item.find_element(By.CSS_SELECTOR, ".price").get_attribute('content')
                 result[link].append([text,price])
         except:
-            logger.error("Error while collecting results", exc_info = 1)
+            logger.error("Error while collecting avito search results", exc_info = 1)
             return 
         return result
 
@@ -163,7 +167,7 @@ def parseAvito (q):
             AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table")
             # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item")  
         except:
-            logger.error("Error while checking urls", exc_info = 1)
+            logger.error("Error while checking avito search results", exc_info = 1)
             disablebrowser(browser, display)
             continue
 
@@ -188,7 +192,7 @@ def notify(bot, text):
 
 def main():
 
-    logger.info('Main started')
+    logger.info("Main started")
     
     def notifier(q):
         while(True):
@@ -204,13 +208,19 @@ def main():
 
     # Start scrapling and notifiyng threads
     q = queue.Queue(maxsize = 0)   
-    t = threading.Thread(name = "ProducerThread", target=checktickets, args=(q,))
+    
+    t = threading.Thread(name = "ProducerThread - Tickets", target=checktickets, args=(q,))
     t.start()
-    t = threading.Thread(name = "ConsumerThread", target=notifier, args=(q,))
+    
+    t = threading.Thread(name = "ProducerThread - Avito", target=parseAvito, args=(q,))
     t.start()
+
+    t = threading.Thread(name = "ConsumerThread - Telegram Notifier", target=notifier, args=(q,))
+    t.start()
+
     q.join
     
-    logger.info('Threads started')
+    logger.info("Threads started")
 
     # Run the bot until you press Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since
