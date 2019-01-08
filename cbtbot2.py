@@ -18,7 +18,7 @@ import logging
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+                    level=logging.warn)
 
 logger = logging.getLogger(__name__)
 
@@ -128,11 +128,13 @@ def checktickets(q):
         
         disablebrowser(browser, display)
         logger.info("Wait after next attempt %s sec", waitsec)
-        time.sleep(waitsec)
         q.join()
+        time.sleep(waitsec)
 
 def parseAvito (q):
     """Monitor avito and send message to queue when search results changes"""
+
+    waitsec = 120
 
     logger.info("Avito parser started")
 
@@ -164,7 +166,7 @@ def parseAvito (q):
         browser, display = initbrowser()
         try:
             AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table")
-            # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item")  
+            AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item")  
         except:
             logger.error("Error while checking avito search results", exc_info = 1)
             disablebrowser(browser, display)
@@ -174,15 +176,17 @@ def parseAvito (q):
         if len(AvitoAdLinklist) == 0:
             # For first launch
             AvitoAdLinklist = AvitoAdLinklist2.copy()
-        else:
+        else: 
             dif = set(AvitoAdLinklist2).symmetric_difference(set(AvitoAdLinklist))
 
         if len(dif) > 0:
-            msg = "Avito results changed" + dif
+            msg = "Avito results changed " + str(dif)
             logger.warn(msg)
             q.put(msg)
         
         disablebrowser(browser, display)
+        q.join()
+        time.sleep(waitsec)
 
 def notify(bot, text):
     """Notify me"""
