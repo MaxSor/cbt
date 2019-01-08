@@ -108,7 +108,7 @@ def checktickets(q):
     rowcount = 1
     urlresult = dict(zip(urllist,[0,0,0]))
     
-    logger.info("Start checking ticket urls")
+    logger.info("Ticket parser started")
 
     while True:
         try:
