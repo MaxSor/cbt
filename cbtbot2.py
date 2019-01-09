@@ -18,7 +18,7 @@ import logging
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+                    level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 
@@ -132,38 +132,43 @@ def checktickets(q):
         q.join()
         time.sleep(waitsec)
 
+ def parseAvitoSearch (url, css_selector, browser, display):
+     """Parse search results"""
+     result = collections.defaultdict(list)
+     logger.info("Checking %s", url)
+     try:
+         browser.get(url) #"https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms"
+         logger.debug("Got %s", url)
+         items = browser.find_elements(By.CSS_SELECTOR, css_selector) #".item.item_table"
+         for item in items:
+             text = item.find_element(By.CSS_SELECTOR, "h3").text
+             link = item.find_element(By.TAG_NAME, "a").get_attribute('href')
+             price = item.find_element(By.CSS_SELECTOR, ".price").get_attribute('content')
+             result[link].append([text,price])
+     except:
+         logger.error("Error while parsing avito search results", exc_info = 1)
+         return
+     return result
+
 def parseAvito (q):
     """Monitor avito and send message to queue when search results changes"""
 
     logger.info("Avito parser started")
-
-    def parseAvitoSearch (url, css_selector, browser, display):
-        """Parse search results"""
-        result = collections.defaultdict(list)
-        logger.info("Checking %s", url)
-        try:
-            browser.get(url) #"https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms"
-            items = browser.find_elements(By.CSS_SELECTOR, css_selector) #".item.item_table"
-            for item in items:
-                text = item.find_element(By.CSS_SELECTOR, "h3").text
-                link = item.find_element(By.TAG_NAME, "a").get_attribute('href')
-                price = item.find_element(By.CSS_SELECTOR, ".price").get_attribute('content')
-                result[link].append([text,price])
-        except:
-            logger.error("Error while parsing avito search results", exc_info = 1)
-            return
-        return result
-
     AvitoAdLinklist = collections.defaultdict(list)
     
     while True:
         try:
+            logger.debug("Before avito browser init")
             browser, display = initbrowser()
+            logger.debug("After avito browser init")
             AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table", browser, display)
+            logger.debug("After avito url parsed")
             # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item", browser, display)  
         except:
             logger.error("Error while checking avito search results", exc_info = 1)
             continue
+
+        disablebrowser(browser, display)
 
         dif = set()
         if len(AvitoAdLinklist) == 0:
@@ -177,8 +182,8 @@ def parseAvito (q):
             logger.warn(msg)
             q.put(msg)
         
-        disablebrowser(browser, display)
         q.join()
+        logger.debug("After avito result proceed")
         time.sleep(waitsec)
 
 def notify(bot, text):
