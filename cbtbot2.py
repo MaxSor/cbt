@@ -22,7 +22,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 
 logger = logging.getLogger(__name__)
 
-waitsec = 120 #Wait before next attempt
+waitsec = 60 #Wait before next attempt
 
 def initcredentials ():
     """ Read urls, telegram bot token and chat_id from file """
@@ -137,26 +137,21 @@ def parseAvito (q):
 
     logger.info("Avito parser started")
 
-    def parseAvitoSearch (url, css_selector):
+    def parseAvitoSearch (url, css_selector, browser, display):
         """Parse search results"""
         result = collections.defaultdict(list)
         logger.info("Checking %s", url)
         try:
             browser.get(url) #"https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms"
             items = browser.find_elements(By.CSS_SELECTOR, css_selector) #".item.item_table"
-        except:
-            logger.error("Error while parsing avito search results", exc_info = 1)
-            return
-        
-        try:
             for item in items:
                 text = item.find_element(By.CSS_SELECTOR, "h3").text
                 link = item.find_element(By.TAG_NAME, "a").get_attribute('href')
                 price = item.find_element(By.CSS_SELECTOR, ".price").get_attribute('content')
                 result[link].append([text,price])
         except:
-            logger.error("Error while collecting avito search results", exc_info = 1)
-            return 
+            logger.error("Error while parsing avito search results", exc_info = 1)
+            return
         return result
 
     AvitoAdLinklist = collections.defaultdict(list)
@@ -164,11 +159,10 @@ def parseAvito (q):
     while True:
         try:
             browser, display = initbrowser()
-            AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table")
-            # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item")  
+            AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table", browser, display)
+            # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item", browser, display)  
         except:
             logger.error("Error while checking avito search results", exc_info = 1)
-            disablebrowser(browser, display)
             continue
 
         dif = set()
@@ -214,7 +208,7 @@ def main():
 #     t = threading.Thread(name = "ProducerThread - Tickets", target=checktickets, args=(q,))
 #     t.start()
     
-    time.sleep(waitsec/2)
+#     time.sleep(waitsec/2)
 
     t = threading.Thread(name = "ProducerThread - Avito", target=parseAvito, args=(q,))
     t.start()
