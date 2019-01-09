@@ -49,14 +49,17 @@ def initcredentials ():
     return urllist, bottoken, chat_id
 
 urllist, bottoken, chat_id = initcredentials()
+display = Display(visible=0, size=(800, 600))
+display.start()
+
 
 def initbrowser():
         """ Enable scrapping """
         
         browser_type = 'chrome'
         
-        display = Display(visible=0, size=(800, 600))
-        display.start()
+        # display = Display(visible=0, size=(800, 600))
+        # display.start()
 
         if browser_type == 'ff':
             browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
@@ -67,15 +70,14 @@ def initbrowser():
             browser = webdriver.Chrome(options = options, executable_path="/usr/bin/chromedriver")
             logger.debug("Chrome browser inited")
        
-        return browser, display
+        return browser
 
-def disablebrowser(browser, display):
+def disablebrowser(browser):
         """ Disable scrapper """
         browser.quit()
-        display.stop()
         logger.debug("Browser stopped")
     
-def checkticketurl(url, browser, display):
+def checkticketurl(url, browser):
         """Chek single url for available tickets"""
         tickets = 0
         msg = ''
@@ -113,13 +115,13 @@ def checktickets(q):
 
     while True:
         try:
-            browser, display = initbrowser()
+            browser = initbrowser()
         except:
             logger.error("Error while browser init", exc_info = 1)
             continue
 
         for url in urllist:
-            tickets, msg = checkticketurl(url, browser, display)  
+            tickets, msg = checkticketurl(url, browser)  
             #Notify when positive checks come in a row
             urlresult[url] += tickets
             if urlresult[url] == rowcount:
@@ -127,12 +129,12 @@ def checktickets(q):
                 logger.warn("Need to notify. %s in a row", rowcount)
                 q.put(msg)    
         
-        disablebrowser(browser, display)
+        disablebrowser(browser)
         logger.info("Wait after next attempt %s sec", waitsec)
         q.join()
         time.sleep(waitsec)
 
-def parseAvitoSearch (url, css_selector, browser, display):
+def parseAvitoSearch (url, css_selector, browser):
     """Parse search results"""
     result = collections.defaultdict(list)
     logger.info("Checking %s", url)
@@ -159,16 +161,16 @@ def parseAvito (q):
     while True:
         try:
             logger.debug("Before avito browser init")
-            browser, display = initbrowser()
+            browser = initbrowser()
             logger.debug("After avito browser init")
-            AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table", browser, display)
+            AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table", browser)
             logger.debug("After avito url parsed")
-            # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item", browser, display)  
+            # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item", browser)  
         except:
             logger.error("Error while checking avito search results", exc_info = 1)
             continue
 
-        disablebrowser(browser, display)
+        disablebrowser(browser)
 
         dif = set()
         if len(AvitoAdLinklist) == 0:
