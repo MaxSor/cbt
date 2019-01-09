@@ -88,7 +88,7 @@ def checkticketurl(url, browser, display):
                return tickets, msg
 
         try:
-                text = WebDriverWait(browser, 10).until(lambda x: x.find_element_by_tag_name('h2')).text
+                text = WebDriverWait(browser, 15).until(lambda x: x.find_element_by_tag_name('h2')).text
         except Exception as e:
                 msg = str(e)[:-1] + " " + url
                 logger.warn(msg)
@@ -184,6 +184,7 @@ def parseAvito (q):
             q.put(msg)
         
         disablebrowser(browser, display)
+        q.join()
         time.sleep(waitsec)
 
 def notify(bot, text):
@@ -210,8 +211,8 @@ def main():
     # Start scrapling and notifiyng threads
     q = queue.Queue(maxsize = 0)   
     
-    t = threading.Thread(name = "ProducerThread - Tickets", target=checktickets, args=(q,))
-    t.start()
+#     t = threading.Thread(name = "ProducerThread - Tickets", target=checktickets, args=(q,))
+#     t.start()
     
     time.sleep(waitsec/2)
 
@@ -221,7 +222,7 @@ def main():
     t = threading.Thread(name = "ConsumerThread - Telegram Notifier", target=notifier, args=(q,))
     t.start()
 
-    q.join
+    q.join()
     
     logger.info("Threads started")
 
