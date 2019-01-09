@@ -53,7 +53,7 @@ urllist, bottoken, chat_id = initcredentials()
 def initbrowser():
         """ Enable scrapping """
         
-        browser_type = 'ff'
+        browser_type = 'chrome'
         
         display = Display(visible=0, size=(800, 600))
         display.start()
