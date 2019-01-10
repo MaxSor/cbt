@@ -122,13 +122,13 @@ def checktickets(q):
     while True:
         try:
             for url in urllist:
-            tickets, msg = checkticketurl(url, browser)  
-            #Notify when positive checks come in a row
-            urlresult[url] += tickets
-            if urlresult[url] == rowcount:
-                urlresult[url] = 0
-                logger.warn("Need to notify. %s in a row", rowcount)
-                q.put(msg)
+                tickets, msg = checkticketurl(url, browser)  
+                #Notify when positive checks come in a row
+                urlresult[url] += tickets
+                if urlresult[url] == rowcount:
+                    urlresult[url] = 0
+                    logger.warn("Need to notify. %s in a row", rowcount)
+                    q.put(msg)
         except:
             browser = initbrowser()
             continue 
