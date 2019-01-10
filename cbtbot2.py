@@ -207,7 +207,7 @@ def main():
     # Start the Bot
     updater = Updater(token=bottoken)
     bot = updater.bot
-    updater.start_polling()
+    # updater.start_polling()
 
     # Start scrapling and notifiyng threads
     q = queue.Queue(maxsize = 0)   
