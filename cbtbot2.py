@@ -87,6 +87,10 @@ def initbrowser():
                 else:
                     options = webdriver.ChromeOptions()
                     options.add_argument("--no-sandbox") # Bypass OS security model
+                    options.add_argument("–-headless")
+                    options.add_argument('window-size=0x0')
+                    prefs = {"profile.managed_default_content_settings.images": 2}
+                    options.add_experimental_option("prefs", prefs)
                     browser = webdriver.Chrome(options = options, executable_path="/usr/bin/chromedriver")
                     logger.debug("Chrome browser inited")            
                 notbrowser_not_created = False
