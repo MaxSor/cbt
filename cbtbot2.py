@@ -239,7 +239,7 @@ def main():
     t = threading.Thread(name = "ProducerThread - Tickets", target=checktickets, args=(q,))
     t.start()
     
-     time.sleep(waitsec/2)
+    time.sleep(waitsec/2)
 
     t = threading.Thread(name = "ProducerThread - Avito", target=parseAvito, args=(q,))
     t.start()
