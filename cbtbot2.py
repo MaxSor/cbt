@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from sys import argv
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from pyvirtualdisplay import Display
 from selenium import webdriver
@@ -16,9 +17,25 @@ import collections
 #from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 
+#Logging level is first param
+# CRITICAL 	50
+# ERROR 	40
+# WARNING 	30
+# INFO 	    20
+# DEBUG 	10
+# NOTSET 	0
+
+print("First param is", argv)
+
+if len(argv[1]) > 0:
+    print("First param is", argv[1])
+    logging_level = int(argv[1]) 
+else:
+    logging_level = 20
+
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+                    level=logging_level)
 
 logger = logging.getLogger(__name__)
 
@@ -57,11 +74,12 @@ def initbrowser():
         """ Enable scrapping """
         
         browser_type = 'chrome'
+        logger.debug("Initiating browser %s", browser_type)
         
         # display = Display(visible=0, size=(800, 600))
         # display.start()
-        browser_created = False
-        while browser_created:
+        notbrowser_not_created = True
+        while notbrowser_not_created:
             try:
                 if browser_type == 'ff':
                     browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
@@ -71,7 +89,7 @@ def initbrowser():
                     options.add_argument("--no-sandbox") # Bypass OS security model
                     browser = webdriver.Chrome(options = options, executable_path="/usr/bin/chromedriver")
                     logger.debug("Chrome browser inited")            
-                browser_created = True
+                notbrowser_not_created = False
                 break
             except:
                 logger.error("Error while browser init", exc_info = 1)
