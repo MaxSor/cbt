@@ -18,3 +18,4 @@ docker rm $(docker ps -a -f status=exited -q)
 
 --Delete images
 docker rmi $(docker images -q -f dangling=true)
+docker image prune -a
