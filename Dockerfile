@@ -57,4 +57,5 @@ COPY cbtbot2.py $APP_HOME/
 COPY credentials $APP_HOME/
 
 # CMD tail -f /dev/null
-CMD python3 cbtbot2.py
+# CMD python3 cbtbot2.py
+ENTRYPOINT ["python3", "cbtbot2.py"]
