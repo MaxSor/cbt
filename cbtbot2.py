@@ -114,7 +114,7 @@ def checkticketurl(url, browser):
                return tickets, msg
 
         try:
-                text = WebDriverWait(browser, 15).until(lambda x: x.find_element_by_tag_name('h2')).text
+                text = WebDriverWait(browser, 20).until(lambda x: x.find_element_by_tag_name('h2')).text
         except Exception as e:
                 msg = str(e)[:-1] + " " + url
                 logger.warn(msg)
