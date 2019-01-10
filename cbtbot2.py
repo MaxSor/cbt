@@ -60,8 +60,8 @@ def initbrowser():
         
         # display = Display(visible=0, size=(800, 600))
         # display.start()
-        browser = False
-        while browser:
+        browser_created = False
+        while browser_created:
             try:
                 if browser_type == 'ff':
                     browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
@@ -71,6 +71,7 @@ def initbrowser():
                     options.add_argument("--no-sandbox") # Bypass OS security model
                     browser = webdriver.Chrome(options = options, executable_path="/usr/bin/chromedriver")
                     logger.debug("Chrome browser inited")            
+                browser_created = True
                 break
             except:
                 logger.error("Error while browser init", exc_info = 1)
