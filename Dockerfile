@@ -27,6 +27,10 @@ RUN apt-get update && apt-get install -y firefox
 
 
 # install chromedriver and google-chrome
+RUN apt-get update && apt-get install -y \
+    libappindicator3-1 \
+    libnspr4 \
+    libnss3
 
 RUN CHROMEDRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE` && \
     wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
