@@ -60,7 +60,7 @@ def initbrowser():
         
         # display = Display(visible=0, size=(800, 600))
         # display.start()
-
+        browser = False
         while browser:
             try:
                 if browser_type == 'ff':
