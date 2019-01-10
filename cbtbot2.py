@@ -153,7 +153,7 @@ def checktickets(q):
             continue 
         # disablebrowser(browser)
         q.join()
-        logger.info("Wait after next attempt %s sec", waitsec)
+        logger.debug("Wait after next attempt %s sec", waitsec)
         time.sleep(waitsec)
 
 def parseAvitoSearch (url, css_selector, browser):
