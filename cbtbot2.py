@@ -180,19 +180,21 @@ def parseAvito (q):
     logger.info("Avito parser started")
     AvitoAdLinklist = collections.defaultdict(list)
     
+    logger.debug("Before avito browser init")
+    browser = initbrowser()
+    logger.debug("After avito browser init")    
+
     while True:
         try:
-            logger.debug("Before avito browser init")
-            browser = initbrowser()
-            logger.debug("After avito browser init")
             AvitoAdLinklist2 = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item.item_table", browser)
             logger.debug("After avito url parsed")
             # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item", browser)  
         except:
             logger.error("Error while checking avito search results", exc_info = 1)
+            browser = initbrowsNjer()
             continue
 
-        disablebrowser(browser)
+        # disablebrowser(browser)
 
         dif = set()
         if len(AvitoAdLinklist) == 0:
@@ -237,10 +239,10 @@ def main():
     t = threading.Thread(name = "ProducerThread - Tickets", target=checktickets, args=(q,))
     t.start()
     
-#     time.sleep(waitsec/2)
+     time.sleep(waitsec/2)
 
-    # t = threading.Thread(name = "ProducerThread - Avito", target=parseAvito, args=(q,))
-    # t.start()
+    t = threading.Thread(name = "ProducerThread - Avito", target=parseAvito, args=(q,))
+    t.start()
 
     t = threading.Thread(name = "ConsumerThread - Telegram Notifier", target=notifier, args=(q,))
     t.start()
