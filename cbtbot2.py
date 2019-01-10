@@ -25,9 +25,9 @@ import logging
 # DEBUG 	10
 # NOTSET 	0
 
-print("First param is", argv)
+print("Params", argv)
 
-if len(argv[1]) > 0:
+if len(argv)>1:
     print("First param is", argv[1])
     logging_level = int(argv[1]) 
 else:
