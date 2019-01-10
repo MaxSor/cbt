@@ -61,15 +61,20 @@ def initbrowser():
         # display = Display(visible=0, size=(800, 600))
         # display.start()
 
-        if browser_type == 'ff':
-            browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
-            logger.debug("Firefox browser inited")
-        else:
-            options = webdriver.ChromeOptions()
-            options.add_argument("--no-sandbox") # Bypass OS security model
-            browser = webdriver.Chrome(options = options, executable_path="/usr/bin/chromedriver")
-            logger.debug("Chrome browser inited")
-       
+        while browser:
+            try:
+                if browser_type == 'ff':
+                    browser = webdriver.Firefox(firefox_profile=webdriver.FirefoxProfile(), log_path=os.devnull)
+                    logger.debug("Firefox browser inited")
+                else:
+                    options = webdriver.ChromeOptions()
+                    options.add_argument("--no-sandbox") # Bypass OS security model
+                    browser = webdriver.Chrome(options = options, executable_path="/usr/bin/chromedriver")
+                    logger.debug("Chrome browser inited")            
+                break
+            except:
+                logger.error("Error while browser init", exc_info = 1)
+                continue      
         return browser
 
 def disablebrowser(browser):
@@ -112,26 +117,24 @@ def checktickets(q):
     urlresult = dict(zip(urllist,[0,0,0]))
     
     logger.info("Ticket parser started")
+    browser = initbrowser()
 
     while True:
         try:
-            browser = initbrowser()
-        except:
-            logger.error("Error while browser init", exc_info = 1)
-            continue
-
-        for url in urllist:
+            for url in urllist:
             tickets, msg = checkticketurl(url, browser)  
             #Notify when positive checks come in a row
             urlresult[url] += tickets
             if urlresult[url] == rowcount:
                 urlresult[url] = 0
                 logger.warn("Need to notify. %s in a row", rowcount)
-                q.put(msg)    
-        
-        disablebrowser(browser)
-        logger.info("Wait after next attempt %s sec", waitsec)
+                q.put(msg)
+        except:
+            browser = initbrowser()
+            continue 
+        # disablebrowser(browser)
         q.join()
+        logger.info("Wait after next attempt %s sec", waitsec)
         time.sleep(waitsec)
 
 def parseAvitoSearch (url, css_selector, browser):
