@@ -1,6 +1,9 @@
 #initial image
 docker build -t selenium . ; docker run --rm -it selenium
 
+# Deploy new version and run
+git pull ; docker build -t selenium . ; docker run --rm -it selenium
+
 # Docker run with interactive console and auto delete container after stop
 docker run --rm -it --restart=always selenium
 docker run --rm -it selenium
