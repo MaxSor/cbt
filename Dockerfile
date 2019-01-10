@@ -6,7 +6,9 @@ ENV LANG en_US.utf8
 
 RUN apt-get update && apt-get install -y \
     python3 python3-pip \
-    libgconf2-4 libnss3-1d libxss1 \
+    libgconf2-4 \
+    # libnss3-1d \
+    libxss1 \
     fonts-liberation libappindicator1 xdg-utils \
     software-properties-common \
     curl unzip wget \
