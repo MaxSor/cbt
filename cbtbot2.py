@@ -195,7 +195,7 @@ def parseAvito (q):
             # AvitoAdLinklist = parseAvitoSearch ("https://www.avito.ru/moskva?s_trg=3&q=carbon+based+lifeforms", ".item", browser)  
         except:
             logger.error("Error while checking avito search results", exc_info = 1)
-            browser = initbrowsNjer()
+            browser = initbrowser()
             continue
 
         # disablebrowser(browser)
