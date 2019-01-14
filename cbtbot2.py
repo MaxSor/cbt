@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from sys import argv
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+
+import urllib.parse
+import urllib.request
 from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -14,7 +16,6 @@ import queue
 import threading
 import collections
 
-#from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 
 #Logging level is first param
@@ -121,7 +122,7 @@ def checkticketurl(url, browser):
                 text = WebDriverWait(browser, 20).until(lambda x: x.find_element_by_tag_name('h2')).text
         except Exception as e:
                 msg = str(e)[:-1] + " " + url
-                logger.warn(msg)
+                logger.error(msg, exc_info = 1)
                 tickets = 1
         else:
                 if (text != "Билетов нет") : 
@@ -217,10 +218,16 @@ def parseAvito (q):
         logger.debug("After avito result proceed")
         time.sleep(waitsec)
 
-def notify(bot, text):
+def notify(text):
     """Notify me"""
-    bot.send_message(chat_id=chat_id, text=text)
-
+    try:
+        text = urllib.parse.quote_plus(text)
+        url = "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s" % (bottoken,chat_id,text)
+        result = urllib.request.urlopen(url).read()
+    except Exception as e:
+        logger.error("Error sending message to telegram", exc_info = 1)
+        return e
+    return result
 
 def main():
 
@@ -230,13 +237,8 @@ def main():
         while(True):
             msg = q.get()
             logger.warn("---Notify: %s ---", msg)
-            notify(bot, msg)
+            notify(msg)
             q.task_done() 
-
-    # Start the Bot
-    updater = Updater(token=bottoken)
-    bot = updater.bot
-    # updater.start_polling()
 
     # Start scrapling and notifiyng threads
     q = queue.Queue(maxsize = 0)   
@@ -255,11 +257,6 @@ def main():
     q.join()
     
     logger.info("Threads started")
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
-    updater.idle()
 
 if __name__ == '__main__':
     main()
