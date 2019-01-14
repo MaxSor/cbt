@@ -210,6 +210,7 @@ def parseAvito (q):
         if len(dif) > 0:
             msg = "Avito results changed " + str(dif)
             logger.warn(msg)
+            AvitoAdLinklist = AvitoAdLinklist2.copy()
             q.put(msg)
         
         q.join()
