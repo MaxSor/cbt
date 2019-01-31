@@ -4,6 +4,7 @@ docker build -t selenium . ; docker run --rm -it selenium
 # Deploy new version and run
 git pull ; docker build -t selenium . ; docker run --rm -it selenium
 git pull ; docker build -t cbt . ; docker run --rm -it cbt
+git pull ; docker build -t cbt . ; docker run --name cbt -d --restart=always cbt
 
 # Docker run with interactive console and auto delete container after stop
 docker run --rm -it --restart=always selenium
